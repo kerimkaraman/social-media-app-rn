@@ -8,6 +8,7 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        "custom-darkgreen": "#07301e",
         "custom-green": "#1ED860",
         "custom-darkblue": "#1A1F22",
         "custom-red": "#BF0000",

@@ -1,12 +1,16 @@
 import { initializeApp } from "firebase/app";
+import { getDatabase } from "firebase/database";
+import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBn3aDodBBNGBpNqRrQTlOyf2UbU-wsftI",
-  authDomain: "social-media-a0d54.firebaseapp.com",
-  projectId: "social-media-a0d54",
-  storageBucket: "social-media-a0d54.appspot.com",
-  messagingSenderId: "306274714363",
-  appId: "1:306274714363:web:83f2ebe3c1fff69337265e",
-  measurementId: "G-0BJ2E09G4D",
+  apiKey: "AIzaSyAownpMbmEUTLBn2jC911BSvpyuBkbVBes",
+  authDomain: "social-media-a1643.firebaseapp.com",
+  projectId: "social-media-a1643",
+  storageBucket: "social-media-a1643.appspot.com",
+  messagingSenderId: "571863275313",
+  appId: "1:571863275313:web:0c3a10f590d89fdaf9c210",
 };
-export const app = initializeApp(firebaseConfig);
+
+const app = initializeApp(firebaseConfig);
+export const DATABASE = getDatabase(app);
+export const STORAGE = getStorage(app);
