@@ -4,37 +4,36 @@ import {
   StyleSheet,
   Image,
   TextInput,
-  Button,
   Pressable,
   KeyboardAvoidingView,
-  Alert,
 } from "react-native";
 import React, { useState } from "react";
 import { LinearGradient } from "expo-linear-gradient";
-import * as ImagePicker from "expo-image-picker";
 import { useDispatch, useSelector } from "react-redux";
-import { ref, set } from "firebase/database";
-import { DATABASE, STORAGE } from "../firebaseConfig";
+import { DATABASE } from "../firebaseConfig";
+import * as ImagePicker from "expo-image-picker";
+import {
+  ref as ref_storage,
+  getDownloadURL,
+  getStorage,
+  uploadBytes,
+} from "firebase/storage";
 import "react-native-get-random-values";
 import {
   updateEmail,
   updateNameSurname,
   updatePassword,
-  updateUserID,
 } from "../store/slices/userSlice";
 import { v4 as uuidv4 } from "uuid";
+import { set, ref as ref_database } from "firebase/database";
 
 export default function SignUp({ navigation }) {
-  const [image, setImage] = useState(null);
   const dispatch = useDispatch();
-
   const handleSwitch = () => {
     navigation.navigate("Signin");
   };
-
-  const { userID, namesurname, img, email, password } = useSelector(
-    (state) => state.user
-  );
+  const { namesurname, email, password } = useSelector((state) => state.user);
+  const [image, setImage] = useState(null);
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -51,6 +50,37 @@ export default function SignUp({ navigation }) {
     }
   };
 
+  async function uploadImageAsync() {
+    const blob = await new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.onload = function () {
+        resolve(xhr.response);
+      };
+      xhr.onerror = function (e) {
+        console.log(e);
+        reject(new TypeError("Network request failed"));
+      };
+      xhr.responseType = "blob";
+      xhr.open("GET", image, true);
+      xhr.send(null);
+    });
+
+    const fileRef = ref_storage(getStorage(), v4());
+    const result = await uploadBytes(fileRef, blob);
+    blob.close();
+    return await getDownloadURL(fileRef);
+  }
+
+  const createUser = () => {
+    const db = DATABASE;
+    set(ref_database(db, "users/" + uuidv4()), {
+      id: uuidv4(),
+      namesurname: namesurname,
+      email: email,
+      password: password,
+    });
+    navigation.navigate("BottomTabs");
+  };
   return (
     <View style={styles.container}>
       <KeyboardAvoidingView>
@@ -73,19 +103,11 @@ export default function SignUp({ navigation }) {
           className="bg-custom-lightgrey p-4 rounded-xl"
           placeholder="İsim Soyisim"
         />
-        <View className="flex-row justify-between items-center">
-          <Text
-            className="bg-custom-lightgrey p-4 rounded-xl  text-[#C6C6CD]"
-            onPress={pickImage}
-          >
+        <View className="bg-custom-lightgrey p-4 rounded-xl flex-row justify-between items-center">
+          <Text className="text-[#C6C6CD]" onPress={pickImage}>
             Profil resmi seçiniz...
           </Text>
-          <Text
-            onPress={uploadImg}
-            className="bg-custom-lightgrey p-4 rounded-xl "
-          >
-            Yükle
-          </Text>
+          <Text onPress={uploadImageAsync}>Yükle</Text>
         </View>
         <TextInput
           onChangeText={(val) => {
@@ -103,7 +125,7 @@ export default function SignUp({ navigation }) {
           secureTextEntry={true}
           placeholder="Şifre"
         />
-        <Pressable className="bg-custom-green py-2">
+        <Pressable className="bg-custom-green py-2" onPress={createUser}>
           <Text className="text-center text-xl text-white">Kaydol</Text>
         </Pressable>
         <View>

@@ -6,10 +6,9 @@ export const userSlice = createSlice({
     userID: 0,
     namesurname: "",
     email: "",
-    img: "",
     password: "",
-    friends: {},
-    posts: {},
+    friends: [],
+    posts: [],
   },
   reducers: {
     updateUserID: (state, action) => {
