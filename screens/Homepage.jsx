@@ -1,10 +1,13 @@
-import { View, Text } from "react-native";
+import { View, Text, SafeAreaView } from "react-native";
 import React from "react";
+import CreatePost from "../components/CreatePost";
+import PageHeader from "../components/PageHeader";
 
 export default function Homepage() {
   return (
-    <View>
-      <Text>Homepage</Text>
-    </View>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
+      <PageHeader />
+      <CreatePost />
+    </SafeAreaView>
   );
 }

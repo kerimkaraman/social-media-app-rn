@@ -10,7 +10,7 @@ import {
 import React, { useState } from "react";
 import { LinearGradient } from "expo-linear-gradient";
 import { useDispatch, useSelector } from "react-redux";
-import { DATABASE } from "../firebaseConfig";
+import { AUTH, DATABASE, STORAGE } from "../firebaseConfig";
 import * as ImagePicker from "expo-image-picker";
 import {
   ref as ref_storage,
@@ -26,6 +26,7 @@ import {
 } from "../store/slices/userSlice";
 import { v4 as uuidv4 } from "uuid";
 import { set, ref as ref_database } from "firebase/database";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 
 export default function SignUp({ navigation }) {
   const dispatch = useDispatch();
@@ -34,7 +35,6 @@ export default function SignUp({ navigation }) {
   };
   const { namesurname, email, password } = useSelector((state) => state.user);
   const [image, setImage] = useState(null);
-
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
@@ -42,15 +42,23 @@ export default function SignUp({ navigation }) {
       aspect: [4, 3],
       quality: 1,
     });
-
     console.log(result);
-
     if (!result.canceled) {
       setImage(result.assets[0].uri);
     }
   };
 
-  async function uploadImageAsync() {
+  const createUser = async () => {
+    const userId = uuidv4();
+    const db = DATABASE;
+    set(ref_database(db, "users/" + userId), {
+      id: userId,
+      namesurname: namesurname,
+      email: email,
+      password: password,
+    });
+
+    const auth = AUTH;
     const blob = await new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
       xhr.onload = function () {
@@ -65,21 +73,22 @@ export default function SignUp({ navigation }) {
       xhr.send(null);
     });
 
-    const fileRef = ref_storage(getStorage(), v4());
+    const fileRef = ref_storage(STORAGE, userId);
     const result = await uploadBytes(fileRef, blob);
+    console.log("Successfully loaded!");
     blob.close();
-    return await getDownloadURL(fileRef);
-  }
 
-  const createUser = () => {
-    const db = DATABASE;
-    set(ref_database(db, "users/" + uuidv4()), {
-      id: uuidv4(),
-      namesurname: namesurname,
-      email: email,
-      password: password,
-    });
+    createUserWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        const user = userCredential.user;
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+      });
+
     navigation.navigate("BottomTabs");
+    return await getDownloadURL(fileRef);
   };
   return (
     <View style={styles.container}>
@@ -107,7 +116,6 @@ export default function SignUp({ navigation }) {
           <Text className="text-[#C6C6CD]" onPress={pickImage}>
             Profil resmi seçiniz...
           </Text>
-          <Text onPress={uploadImageAsync}>Yükle</Text>
         </View>
         <TextInput
           onChangeText={(val) => {

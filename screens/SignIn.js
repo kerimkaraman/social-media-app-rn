@@ -7,11 +7,34 @@ import {
   TextInput,
   Pressable,
   KeyboardAvoidingView,
+  Alert,
 } from "react-native";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { useDispatch, useSelector } from "react-redux";
+import { AUTH } from "../firebaseConfig";
+import { updateEmail, updatePassword } from "../store/slices/userSlice";
 
 export default function SignIn({ navigation }) {
+  const { email, password } = useSelector((state) => state.user);
+  const dispatch = useDispatch();
   const handleSwitch = () => {
     navigation.navigate("Signup");
+  };
+  const signIn = () => {
+    const auth = AUTH;
+    signInWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        const user = userCredential.user;
+        console.log(user);
+        navigation.navigate("BottomTabs");
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        console.log(errorCode);
+        if (errorCode == "auth/invalid-login-credentials")
+          Alert.alert("Uyarı", "Geçersiz hesap bilgisi");
+      });
   };
 
   return (
@@ -31,14 +54,17 @@ export default function SignIn({ navigation }) {
         </Text>
         <View className="gap-y-7 w-[90%] mx-auto pt-5">
           <TextInput
+            onChangeText={(val) => dispatch(updateEmail(val))}
+            autoCapitalize="none"
             placeholder="Email"
             className="bg-custom-lightgrey p-4 rounded-xl"
           />
           <TextInput
             placeholder="Password"
+            onChangeText={(val) => dispatch(updatePassword(val))}
             className="bg-custom-lightgrey p-4 rounded-xl"
           />
-          <Pressable className="bg-custom-green py-2">
+          <Pressable className="bg-custom-green py-2" onPress={signIn}>
             <Text className="text-center text-xl text-white">Giriş Yap</Text>
           </Pressable>
         </View>

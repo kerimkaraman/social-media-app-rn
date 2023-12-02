@@ -20,7 +20,11 @@ export default function AppNavigation() {
           name="Signin"
           component={SignIn}
         />
-        <Stack.Screen name="BottomTabs" component={BottomTabs} />
+        <Stack.Screen
+          name="BottomTabs"
+          component={BottomTabs}
+          options={{ headerShown: false }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );
