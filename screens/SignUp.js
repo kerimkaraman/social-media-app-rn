@@ -73,7 +73,7 @@ export default function SignUp({ navigation }) {
       xhr.send(null);
     });
 
-    const fileRef = ref_storage(STORAGE, userId);
+    const fileRef = ref_storage(STORAGE, "pfps/" + userId);
     const result = await uploadBytes(fileRef, blob);
     console.log("Successfully loaded!");
     blob.close();
