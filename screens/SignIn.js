@@ -11,8 +11,15 @@ import {
 } from "react-native";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useDispatch, useSelector } from "react-redux";
-import { AUTH } from "../firebaseConfig";
-import { updateEmail, updatePassword } from "../store/slices/userSlice";
+import { AUTH, DATABASE } from "../firebaseConfig";
+import {
+  updateEmail,
+  updatePassword,
+  updateUserID,
+} from "../store/slices/userSlice";
+import { ref, onValue } from "firebase/database";
+import React, { useState } from "react";
+import axios from "axios";
 
 export default function SignIn({ navigation }) {
   const { email, password } = useSelector((state) => state.user);
@@ -25,13 +32,11 @@ export default function SignIn({ navigation }) {
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
         const user = userCredential.user;
-        console.log(user);
-        navigation.navigate("BottomTabs");
+        navigation.navigate("BottomTabs", { email: email });
       })
       .catch((error) => {
         const errorCode = error.code;
         const errorMessage = error.message;
-        console.log(errorCode);
         if (errorCode == "auth/invalid-login-credentials")
           Alert.alert("Uyarı", "Geçersiz hesap bilgisi");
       });
