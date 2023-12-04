@@ -6,15 +6,13 @@ import { STORAGE } from "../firebaseConfig";
 
 export default function Post({ id, userId, text }) {
   const [isLiked, setIsLiked] = React.useState(false);
-  const [imgUrl, setImgUrl] = useState();
+  const [postImg, setPostImg] = useState();
+  const [userImg, setUserImg] = useState();
 
   useEffect(() => {
     const storage = STORAGE;
     getDownloadURL(ref_storage(storage, `posts/${id}`))
       .then((url) => {
-        // `url` is the download URL for 'images/stars.jpg'
-
-        // This can be downloaded directly:
         const xhr = new XMLHttpRequest();
         xhr.responseType = "blob";
         xhr.onload = (event) => {
@@ -22,12 +20,24 @@ export default function Post({ id, userId, text }) {
         };
         xhr.open("GET", url);
         xhr.send();
-
-        // Or inserted into an <img> element
-        setImgUrl(url);
+        setPostImg(url);
       })
       .catch((error) => {
-        // Handle any errors
+        console.log(error);
+      });
+    getDownloadURL(ref_storage(storage, `pfps/${userId}`))
+      .then((url) => {
+        const xhr = new XMLHttpRequest();
+        xhr.responseType = "blob";
+        xhr.onload = (event) => {
+          const blob = xhr.response;
+        };
+        xhr.open("GET", url);
+        xhr.send();
+        setUserImg(url);
+      })
+      .catch((error) => {
+        console.log(error);
       });
   }, []);
 
@@ -36,9 +46,9 @@ export default function Post({ id, userId, text }) {
       <View className="flex-row items-center justify-between px-4">
         <View className="flex-row items-center gap-x-4">
           <Image
-            style={{ objectFit: "contain" }}
+            style={{ objectFit: "cover" }}
             className="w-[50px] h-[50px] rounded-full border border-custom-green"
-            source={{ uri: imgUrl }}
+            source={{ uri: userImg }}
           />
           <View className="flex-col">
             <Text className="font-semibold">Kerim Karaman</Text>
@@ -49,14 +59,14 @@ export default function Post({ id, userId, text }) {
           <Text className="font-bold">...</Text>
         </View>
       </View>
-      <View>
+      <View className="flex-col gap-y-5">
         <Image
-          source={{ uri: imgUrl }}
-          style={{ width: "100%", height: 100, objectFit: "contain" }}
+          source={{ uri: postImg }}
+          style={{ width: "100%", height: 200, objectFit: "cover" }}
         />
-        <Text className="px-2">{text}</Text>
+        <Text className="px-4">{text}</Text>
       </View>
-      <View className="px-2 flex-row gap-x-6">
+      <View className="px-4 flex-row gap-x-6">
         <TouchableOpacity onPress={() => setIsLiked(!isLiked)}>
           <AntDesign
             name="like1"

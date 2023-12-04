@@ -55,7 +55,6 @@ export default function Homepage() {
       <ScrollView className="bg-custom-lightgrey">
         <PageHeader />
         <CreatePost userId={userId} />
-        <Post />
         {Object.values(posts).map((post) => {
           const { id, text, userId } = post;
           return <Post id={id} text={text} userId={userId} />;
