@@ -3,13 +3,16 @@ import React, { useEffect, useState } from "react";
 import { AntDesign, FontAwesome } from "@expo/vector-icons";
 import { ref as ref_storage, getDownloadURL } from "firebase/storage";
 import { STORAGE } from "../firebaseConfig";
+import axios from "axios";
 
 export default function Post({ id, userId, text }) {
   const [isLiked, setIsLiked] = React.useState(false);
   const [postImg, setPostImg] = useState();
   const [userImg, setUserImg] = useState();
+  const [userDetails, setUserDetails] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
+  const getImages = async () => {
     const storage = STORAGE;
     getDownloadURL(ref_storage(storage, `posts/${id}`))
       .then((url) => {
@@ -39,10 +42,24 @@ export default function Post({ id, userId, text }) {
       .catch((error) => {
         console.log(error);
       });
+  };
+
+  const getUserData = async () => {
+    const response = await axios.get(
+      `https://social-media-rn-19287-default-rtdb.firebaseio.com/users.json?id=${userId}`
+    );
+    setUserDetails(response.data);
+  };
+
+  useEffect(() => {
+    getImages()
+      .then(getUserData())
+      .then(setIsLoading(false))
+      .then(console.log(userDetails));
   }, []);
 
-  return (
-    <View className="bg-white flex-col gap-y-6 mt-2 py-4">
+  return isLoading ? null : (
+    <View key={id} className="bg-white flex-col gap-y-6 mt-2 py-4">
       <View className="flex-row items-center justify-between px-4">
         <View className="flex-row items-center gap-x-4">
           <Image

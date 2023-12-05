@@ -76,6 +76,8 @@ export default function CreatePost({ userId }) {
     const result = await uploadBytes(fileRef, blob);
     console.log("Successfully loaded !");
     blob.close();
+    setText("");
+    setImage(null);
     return await getDownloadURL(fileRef);
   };
 
@@ -92,6 +94,7 @@ export default function CreatePost({ userId }) {
             onChangeText={(val) => {
               setText(val);
             }}
+            value={text}
           />
         </View>
         <Animated.View

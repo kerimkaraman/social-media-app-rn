@@ -15,7 +15,6 @@ import * as ImagePicker from "expo-image-picker";
 import {
   ref as ref_storage,
   getDownloadURL,
-  getStorage,
   uploadBytes,
 } from "firebase/storage";
 import "react-native-get-random-values";
@@ -31,7 +30,7 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 export default function SignUp({ navigation }) {
   const dispatch = useDispatch();
   const handleSwitch = () => {
-    navigation.navigate("Signin");
+    navigation.navigate("Signin", { email });
   };
   const { namesurname, email, password } = useSelector((state) => state.user);
   const [image, setImage] = useState(null);
@@ -87,7 +86,7 @@ export default function SignUp({ navigation }) {
         const errorMessage = error.message;
       });
 
-    navigation.navigate("BottomTabs");
+    navigation.navigate("BottomTabs", { email: email });
     return await getDownloadURL(fileRef);
   };
   return (

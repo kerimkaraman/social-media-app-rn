@@ -2,6 +2,8 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Homepage from "./Homepage";
 import React from "react";
 import HomeIcon from "../assets/svg/HomeIcon";
+import Profile from "./Profile";
+import ProfileIcon from "../assets/svg/ProfileIcon";
 
 export default function BottomTabs({ route }) {
   const { email } = route.params;
@@ -19,6 +21,17 @@ export default function BottomTabs({ route }) {
           },
           tabBarLabelStyle: {},
         }}
+      />
+      <Tab.Screen
+        name="Profile"
+        initialParams={{ email: email }}
+        options={{
+          headerShown: false,
+          tabBarIcon: ({ focused }) => {
+            return <ProfileIcon focused={focused} />;
+          },
+        }}
+        component={Profile}
       />
     </Tab.Navigator>
   );

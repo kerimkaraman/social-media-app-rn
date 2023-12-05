@@ -19,7 +19,6 @@ export default function Homepage() {
       const response = await axios.get(
         `https://social-media-rn-19287-default-rtdb.firebaseio.com/users.json?email=${email}`
       );
-
       const userData = response.data;
 
       if (userData) {
@@ -43,7 +42,6 @@ export default function Homepage() {
       setPosts(data);
     });
   };
-
   useEffect(() => {
     fetchPosts();
     fetchData();
