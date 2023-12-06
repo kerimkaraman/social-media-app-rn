@@ -1,33 +1,42 @@
-import { View, Text, SafeAreaView, Image } from "react-native";
+import { View, Text, SafeAreaView, Image, ScrollView } from "react-native";
 import React, { useEffect, useLayoutEffect, useState } from "react";
 import axios from "axios";
 import { onValue, ref } from "firebase/database";
-import { DATABASE, STORAGE } from "../firebaseConfig";
+import { DATABASE, FIRESTORE, STORAGE } from "../firebaseConfig";
 import Post from "../components/Post";
 import { getDownloadURL, ref as ref_storage } from "firebase/storage";
+import { collection, getDocs, query, where } from "firebase/firestore";
+import { useSelector } from "react-redux";
 
-export default function Profile({ isUser, email }) {
+export default function Profile({ isUser, route }) {
+  const { email } = useSelector((state) => state.user);
   const [user, setUser] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [posts, setPosts] = useState([]);
   const [userId, setUserId] = useState();
   const [userPfp, setUserPfp] = useState();
 
-  const fetchData = async () => {
-    const db = DATABASE;
-    const userRef = ref(db, "users/");
-    onValue(userRef, (snapshot) => {
-      const data = snapshot.val();
-      setUser(data);
+  const fetchData = async (email) => {
+    const db = FIRESTORE;
+    const userRef = collection(db, "users");
+    const q = query(userRef, where("email", "==", email));
+    const userD = await getDocs(q);
+    userD.forEach((doc) => {
+      setUser(doc.data());
+      setUserId(doc.data().id);
     });
+    /*  */
+    return userId;
+  };
 
-    if (user) {
-      Object.values(user).map((ud) => {
-        if (ud.email == email) {
-          console.log(ud.id);
-        }
-      });
-    }
+  const getPosts = async (userId) => {
+    const db = FIRESTORE;
+    const postsRef = collection(db, "posts");
+    const b = query(postsRef, where("userId", "==", userId));
+    const postD = await getDocs(b);
+    postD.forEach((doc) => {
+      setPosts((previous) => [...previous, doc.data()]);
+    });
     return userId;
   };
 
@@ -44,45 +53,35 @@ export default function Profile({ isUser, email }) {
     setUserPfp(url);
   };
 
-  const fetchPosts = () => {
-    const db = DATABASE;
-    const postRef = ref(db, "posts/");
-    onValue(postRef, (snapshot) => {
-      const data = snapshot.val();
-      setPosts(data);
-    });
-    return posts;
-  };
-
   useEffect(() => {
-    fetchData()
+    fetchData(email)
+      .then((res) => getPosts(res))
       .then((res) => fetchImage(res))
-      .then(fetchPosts())
       .then(setIsLoading(false));
-  }, []);
-  return isLoading ? null : (
+  }, [email]);
+  return isLoading ? (
+    <Text>deneme</Text>
+  ) : (
     <SafeAreaView className="bg-white" style={{ flex: 1 }}>
-      <View>
-        <Image
-          style={{ width: 100, height: 100, borderRadius: 50 }}
-          source={{ uri: userPfp }}
-        />
-        {Object.values(user).map((ud) => {
-          const { id, email, namesurname } = ud;
-          return ud.id == userId ? (
-            <View key={id} className="flex-col gap-y-2">
-              <Text className="font-medium">{namesurname}</Text>
-              <Text className="text-xs text-custom-lightgrey">{email}</Text>
-            </View>
-          ) : null;
-        })}
-      </View>
+      <ScrollView>
+        <View className="items-center justify-center gap-y-5 mt-2">
+          <Image
+            style={{ width: 100, height: 100, borderRadius: 50 }}
+            source={{ uri: userPfp }}
+          />
+          <View className="justify-center items-center gap-y-1">
+            <Text className="font-semibold">{user.namesurname}</Text>
+            <Text className="text-xs text-custom-lightgrey">{user.email}</Text>
+          </View>
+        </View>
+        {posts != undefined
+          ? posts.map((post) => {
+              return (
+                <Post id={post.postId} userId={post.userId} text={post.text} />
+              );
+            })
+          : null}
+      </ScrollView>
     </SafeAreaView>
   );
 }
-
-/* {Object.values(posts).map((post, index) => {
-        return post.userId === userId ? (
-          <Post id={post.id} userId={post.userId} text={post.text} />
-        ) : null;
-      })} */

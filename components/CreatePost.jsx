@@ -5,7 +5,7 @@ import {
   Pressable,
   TouchableOpacity,
 } from "react-native";
-import React from "react";
+import React, { useState } from "react";
 import AddImage from "../assets/svg/AddImage";
 import * as ImagePicker from "expo-image-picker";
 import Animated from "react-native-reanimated";
@@ -18,12 +18,14 @@ import {
   getDownloadURL,
   uploadBytes,
 } from "firebase/storage";
+import getCurrentDate from "../functions";
 
 export default function CreatePost({ userId }) {
   const [image, setImage] = React.useState(null);
   const height = useSharedValue(0);
   const overflow = useSharedValue("hidden");
   const [text, setText] = React.useState("");
+  const [postId, setPostId] = useState();
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -39,6 +41,7 @@ export default function CreatePost({ userId }) {
   };
 
   const handleOnFocus = () => {
+    setPostId(uuidv4());
     height.value = withTiming(height.value + 50, {
       duration: 500,
     });
@@ -51,14 +54,12 @@ export default function CreatePost({ userId }) {
   };
 
   const handleSharePost = async () => {
-    const postId = uuidv4();
     const db = FIRESTORE;
 
     await setDoc(doc(db, "posts", postId), {
       postId: postId,
       userId: userId,
       text: text,
-      shareDate: ,
     });
     const blob = await new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();

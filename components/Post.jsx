@@ -2,8 +2,8 @@ import { View, Text, Image, Pressable, TouchableOpacity } from "react-native";
 import React, { useEffect, useState } from "react";
 import { AntDesign, FontAwesome } from "@expo/vector-icons";
 import { ref as ref_storage, getDownloadURL } from "firebase/storage";
-import { STORAGE } from "../firebaseConfig";
-import axios from "axios";
+import { FIRESTORE, STORAGE } from "../firebaseConfig";
+import { collection, getDocs, query, where } from "firebase/firestore";
 
 export default function Post({ id, userId, text }) {
   const [isLiked, setIsLiked] = React.useState(false);
@@ -42,24 +42,21 @@ export default function Post({ id, userId, text }) {
       .catch((error) => {
         console.log(error);
       });
-  };
-
-  const getUserData = async () => {
-    const response = await axios.get(
-      `https://social-media-rn-19287-default-rtdb.firebaseio.com/users.json?id=${userId}`
-    );
-    setUserDetails(response.data);
+    const db = FIRESTORE;
+    const userRef = collection(db, "users");
+    const q = query(userRef, where("id", "==", userId));
+    const user = await getDocs(q);
+    user.forEach((doc) => {
+      setUserDetails(doc.data());
+    });
   };
 
   useEffect(() => {
-    getImages()
-      .then(getUserData())
-      .then(setIsLoading(false))
-      .then(console.log(userDetails));
+    getImages().then(setIsLoading(false));
   }, []);
 
   return isLoading ? null : (
-    <View key={id} className="bg-white flex-col gap-y-6 mt-2 py-4">
+    <View key={id} className="bg-white flex-col gap-y-4 mt-2 py-4">
       <View className="flex-row items-center justify-between px-4">
         <View className="flex-row items-center gap-x-4">
           <Image
@@ -68,7 +65,7 @@ export default function Post({ id, userId, text }) {
             source={{ uri: userImg }}
           />
           <View className="flex-col">
-            <Text className="font-semibold">Kerim Karaman</Text>
+            <Text className="font-semibold">{userDetails.namesurname}</Text>
             <Text className="text-xs">14 mins ago</Text>
           </View>
         </View>
@@ -77,10 +74,12 @@ export default function Post({ id, userId, text }) {
         </View>
       </View>
       <View className="flex-col gap-y-5">
-        <Image
-          source={{ uri: postImg }}
-          style={{ width: "100%", height: 200, objectFit: "cover" }}
-        />
+        {postImg != null ? (
+          <Image
+            source={{ uri: postImg }}
+            style={{ width: "100%", height: 200, objectFit: "cover" }}
+          />
+        ) : null}
         <Text className="px-4">{text}</Text>
       </View>
       <View className="px-4 flex-row gap-x-6">

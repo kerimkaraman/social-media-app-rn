@@ -1,4 +1,4 @@
-import { SafeAreaView, ScrollView, Text } from "react-native";
+import { FlatList, SafeAreaView, ScrollView, Text } from "react-native";
 import React, { useEffect, useState } from "react";
 import CreatePost from "../components/CreatePost";
 import PageHeader from "../components/PageHeader";
@@ -24,7 +24,7 @@ export default function Homepage() {
     const db = FIRESTORE;
     const querySnapshot = await getDocs(collection(db, "posts"));
     querySnapshot.forEach((doc) => {
-      setPosts(doc.data());
+      setPosts((previous) => [...previous, doc.data()]);
     });
 
     const usersRef = collection(db, "users");
@@ -45,6 +45,11 @@ export default function Homepage() {
       <ScrollView className="bg-custom-lightgrey">
         <PageHeader />
         <CreatePost userId={userId} />
+        {posts.map((post) => {
+          return (
+            <Post id={post.postId} userId={post.userId} text={post.text} />
+          );
+        })}
       </ScrollView>
     </SafeAreaView>
   );
