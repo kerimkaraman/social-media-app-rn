@@ -60,6 +60,8 @@ export default function CreatePost({ userId }) {
       postId: postId,
       userId: userId,
       text: text,
+      likes: [],
+      comments: [],
     });
     const blob = await new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
@@ -118,9 +120,9 @@ export default function CreatePost({ userId }) {
           </View>
           <Pressable
             onPress={handleSharePost}
-            className="bg-custom-green py-1.5 px-6 rounded-md"
+            className="bg-custom-green py-1.5 px-3 rounded-md"
           >
-            <Text className="text-white font-medium">Paylaş</Text>
+            <Text className="text-white text-xs font-semibold">Paylaş</Text>
           </Pressable>
         </Animated.View>
       </View>

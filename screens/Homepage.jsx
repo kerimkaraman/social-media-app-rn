@@ -4,14 +4,7 @@ import CreatePost from "../components/CreatePost";
 import PageHeader from "../components/PageHeader";
 import Post from "../components/Post";
 import { useSelector } from "react-redux";
-import {
-  collection,
-  getDocs,
-  query,
-  where,
-  orderBy,
-  getDoc,
-} from "firebase/firestore";
+import { collection, getDocs, query, where } from "firebase/firestore";
 import { FIRESTORE } from "../firebaseConfig";
 
 export default function Homepage() {
@@ -23,10 +16,13 @@ export default function Homepage() {
   const getData = async () => {
     const db = FIRESTORE;
     const querySnapshot = await getDocs(collection(db, "posts"));
-    querySnapshot.forEach((doc) => {
-      setPosts((previous) => [...previous, doc.data()]);
+    const newPosts = querySnapshot.docs.map((doc) => {
+      return {
+        id: doc.id,
+        ...doc.data(),
+      };
     });
-
+    setPosts(newPosts);
     const usersRef = collection(db, "users");
     const q = query(usersRef, where("email", "==", email));
     const user = await getDocs(q);
@@ -42,8 +38,8 @@ export default function Homepage() {
     <Text>Hello</Text>
   ) : (
     <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
+      <PageHeader />
       <ScrollView className="bg-custom-lightgrey">
-        <PageHeader />
         <CreatePost userId={userId} />
         {posts.map((post) => {
           return (

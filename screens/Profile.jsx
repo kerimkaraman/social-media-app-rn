@@ -8,14 +8,14 @@ import { getDownloadURL, ref as ref_storage } from "firebase/storage";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { useSelector } from "react-redux";
 
-export default function Profile({ isUser, route }) {
+export default function Profile() {
   const { email } = useSelector((state) => state.user);
   const [user, setUser] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [posts, setPosts] = useState([]);
-  const [userId, setUserId] = useState();
-  const [userPfp, setUserPfp] = useState();
 
+  const [userPfp, setUserPfp] = useState();
+  let userId;
   const fetchData = async (email) => {
     const db = FIRESTORE;
     const userRef = collection(db, "users");
@@ -23,9 +23,8 @@ export default function Profile({ isUser, route }) {
     const userD = await getDocs(q);
     userD.forEach((doc) => {
       setUser(doc.data());
-      setUserId(doc.data().id);
+      userId = doc.data().id;
     });
-    /*  */
     return userId;
   };
 
@@ -34,9 +33,13 @@ export default function Profile({ isUser, route }) {
     const postsRef = collection(db, "posts");
     const b = query(postsRef, where("userId", "==", userId));
     const postD = await getDocs(b);
-    postD.forEach((doc) => {
-      setPosts((previous) => [...previous, doc.data()]);
+    const newPosts = postD.docs.map((doc) => {
+      return {
+        id: doc.id,
+        ...doc.data(),
+      };
     });
+    setPosts(newPosts);
     return userId;
   };
 
@@ -56,14 +59,14 @@ export default function Profile({ isUser, route }) {
   useEffect(() => {
     fetchData(email)
       .then((res) => getPosts(res))
-      .then((res) => fetchImage(res))
+      .then((response) => fetchImage(response))
       .then(setIsLoading(false));
   }, [email]);
   return isLoading ? (
     <Text>deneme</Text>
   ) : (
     <SafeAreaView className="bg-white" style={{ flex: 1 }}>
-      <ScrollView>
+      <ScrollView className="flex-col gap-y-2">
         <View className="items-center justify-center gap-y-5 mt-2">
           <Image
             style={{ width: 100, height: 100, borderRadius: 50 }}
