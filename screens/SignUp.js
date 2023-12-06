@@ -10,8 +10,9 @@ import {
 import React, { useState } from "react";
 import { LinearGradient } from "expo-linear-gradient";
 import { useDispatch, useSelector } from "react-redux";
-import { AUTH, DATABASE, STORAGE } from "../firebaseConfig";
+import { AUTH, FIRESTORE, STORAGE } from "../firebaseConfig";
 import * as ImagePicker from "expo-image-picker";
+import { collection, addDoc, doc, setDoc } from "firebase/firestore";
 import {
   ref as ref_storage,
   getDownloadURL,
@@ -24,7 +25,6 @@ import {
   updatePassword,
 } from "../store/slices/userSlice";
 import { v4 as uuidv4 } from "uuid";
-import { set, ref as ref_database } from "firebase/database";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 
 export default function SignUp({ navigation }) {
@@ -49,14 +49,13 @@ export default function SignUp({ navigation }) {
 
   const createUser = async () => {
     const userId = uuidv4();
-    const db = DATABASE;
-    set(ref_database(db, "users/" + userId), {
+    const db = FIRESTORE;
+    await setDoc(doc(db, "users", userId), {
       id: userId,
       namesurname: namesurname,
       email: email,
       password: password,
     });
-
     const auth = AUTH;
     const blob = await new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();

@@ -14,50 +14,51 @@ export default function Profile({ isUser, email }) {
   const [userPfp, setUserPfp] = useState();
 
   const fetchData = async () => {
-    try {
-      const response = await axios.get(
-        `https://social-media-rn-19287-default-rtdb.firebaseio.com/users.json?email=${email}`
-      );
-      const userData = response.data;
+    const db = DATABASE;
+    const userRef = ref(db, "users/");
+    onValue(userRef, (snapshot) => {
+      const data = snapshot.val();
+      setUser(data);
+    });
 
-      if (userData) {
-        setUser(userData);
-        Object.values(userData).map((ud) => {
-          setUserId(ud.id);
-        });
-      }
-      const storage = STORAGE;
-      getDownloadURL(ref_storage(storage, `pfps/${userId}`))
-        .then((url) => {
-          const xhr = new XMLHttpRequest();
-          xhr.responseType = "blob";
-          xhr.onload = (event) => {
-            const blob = xhr.response;
-          };
-          xhr.open("GET", url);
-          xhr.send();
-          setUserPfp(url);
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    } catch (err) {
-      console.log(err);
+    if (user) {
+      Object.values(user).map((ud) => {
+        if (ud.email == email) {
+          console.log(ud.id);
+        }
+      });
     }
+    return userId;
   };
 
-  const fetchPosts = async () => {
+  const fetchImage = async (userId) => {
+    const storage = STORAGE;
+    const url = await getDownloadURL(ref_storage(storage, `pfps/${userId}`));
+    const xhr = new XMLHttpRequest();
+    xhr.responseType = "blob";
+    xhr.onload = (event) => {
+      const blob = xhr.response;
+    };
+    xhr.open("GET", url);
+    xhr.send();
+    setUserPfp(url);
+  };
+
+  const fetchPosts = () => {
     const db = DATABASE;
     const postRef = ref(db, "posts/");
     onValue(postRef, (snapshot) => {
       const data = snapshot.val();
       setPosts(data);
     });
-    return console.log(posts);
+    return posts;
   };
 
   useEffect(() => {
-    fetchData().then(fetchPosts()).then(setIsLoading(false));
+    fetchData()
+      .then((res) => fetchImage(res))
+      .then(fetchPosts())
+      .then(setIsLoading(false));
   }, []);
   return isLoading ? null : (
     <SafeAreaView className="bg-white" style={{ flex: 1 }}>
@@ -68,12 +69,12 @@ export default function Profile({ isUser, email }) {
         />
         {Object.values(user).map((ud) => {
           const { id, email, namesurname } = ud;
-          return (
+          return ud.id == userId ? (
             <View key={id} className="flex-col gap-y-2">
               <Text className="font-medium">{namesurname}</Text>
               <Text className="text-xs text-custom-lightgrey">{email}</Text>
             </View>
-          );
+          ) : null;
         })}
       </View>
     </SafeAreaView>

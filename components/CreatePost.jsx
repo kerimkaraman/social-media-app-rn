@@ -10,9 +10,9 @@ import AddImage from "../assets/svg/AddImage";
 import * as ImagePicker from "expo-image-picker";
 import Animated from "react-native-reanimated";
 import { useSharedValue, withTiming } from "react-native-reanimated";
-import { AUTH, DATABASE, STORAGE } from "../firebaseConfig";
+import { AUTH, FIRESTORE, STORAGE } from "../firebaseConfig";
 import { v4 as uuidv4 } from "uuid";
-import { set, ref as ref_database } from "firebase/database";
+import { doc, setDoc, getDoc } from "firebase/firestore";
 import {
   ref as ref_storage,
   getDownloadURL,
@@ -52,11 +52,13 @@ export default function CreatePost({ userId }) {
 
   const handleSharePost = async () => {
     const postId = uuidv4();
-    const db = DATABASE;
-    set(ref_database(db, "posts/" + postId), {
+    const db = FIRESTORE;
+
+    await setDoc(doc(db, "posts", postId), {
+      postId: postId,
       userId: userId,
-      id: postId,
       text: text,
+      shareDate: ,
     });
     const blob = await new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();

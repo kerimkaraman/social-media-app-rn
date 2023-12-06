@@ -1,12 +1,18 @@
-import { SafeAreaView, ScrollView } from "react-native";
+import { SafeAreaView, ScrollView, Text } from "react-native";
 import React, { useEffect, useState } from "react";
 import CreatePost from "../components/CreatePost";
 import PageHeader from "../components/PageHeader";
 import Post from "../components/Post";
 import { useSelector } from "react-redux";
-import axios from "axios";
-import { ref, onValue } from "firebase/database";
-import { DATABASE } from "../firebaseConfig";
+import {
+  collection,
+  getDocs,
+  query,
+  where,
+  orderBy,
+  getDoc,
+} from "firebase/firestore";
+import { FIRESTORE } from "../firebaseConfig";
 
 export default function Homepage() {
   const [posts, setPosts] = useState([]);
@@ -14,49 +20,31 @@ export default function Homepage() {
   const [isLoading, setIsLoading] = useState(true);
   const { email } = useSelector((state) => state.user);
 
-  const fetchData = async () => {
-    try {
-      const response = await axios.get(
-        `https://social-media-rn-19287-default-rtdb.firebaseio.com/users.json?email=${email}`
-      );
-      const userData = response.data;
+  const getData = async () => {
+    const db = FIRESTORE;
+    const querySnapshot = await getDocs(collection(db, "posts"));
+    querySnapshot.forEach((doc) => {
+      setPosts(doc.data());
+    });
 
-      if (userData) {
-        Object.values(userData).forEach((ud) => {
-          const { id } = ud;
-          setUserId(id);
-        });
-      }
-    } catch (err) {
-      console.log(err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const fetchPosts = () => {
-    const db = DATABASE;
-    const postRef = ref(db, "posts/");
-    onValue(postRef, (snapshot) => {
-      const data = snapshot.val();
-      setPosts(data);
+    const usersRef = collection(db, "users");
+    const q = query(usersRef, where("email", "==", email));
+    const user = await getDocs(q);
+    user.forEach((doc) => {
+      setUserId(doc.data().id);
     });
   };
   useEffect(() => {
-    fetchPosts();
-    fetchData();
+    getData().then(setIsLoading(false));
   }, []);
 
-  return isLoading ? null : (
+  return isLoading ? (
+    <Text>Hello</Text>
+  ) : (
     <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
-      {console.log(userId)}
       <ScrollView className="bg-custom-lightgrey">
         <PageHeader />
         <CreatePost userId={userId} />
-        {Object.values(posts).map((post) => {
-          const { id, text, userId } = post;
-          return <Post id={id} text={text} userId={userId} />;
-        })}
       </ScrollView>
     </SafeAreaView>
   );

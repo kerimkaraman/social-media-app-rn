@@ -1,19 +1,21 @@
 import { initializeApp } from "firebase/app";
-import { getDatabase } from "firebase/database";
+import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 import { getAuth } from "firebase/auth";
+import { initializeAuth, getReactNativePersistence } from "firebase/auth";
+import ReactNativeAsyncStorage from "@react-native-async-storage/async-storage";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAQV0PLz1TYJdhBmODUFQA7T3mAK1OIZTQ",
-  authDomain: "social-media-rn-19287.firebaseapp.com",
-  databaseURL: "https://social-media-rn-19287-default-rtdb.firebaseio.com",
-  projectId: "social-media-rn-19287",
-  storageBucket: "social-media-rn-19287.appspot.com",
-  messagingSenderId: "993555563518",
-  appId: "1:993555563518:web:ebfeeca1fb5e5a4f7cb6af",
+  apiKey: "AIzaSyDsLTZfn3iU-T6K8kNjE4GkbpDqpzVBZN8",
+  authDomain: "social-media-rn-a339e.firebaseapp.com",
+  projectId: "social-media-rn-a339e",
+  storageBucket: "social-media-rn-a339e.appspot.com",
+  messagingSenderId: "744895901778",
+  appId: "1:744895901778:web:e125df80203c5b9147af8b",
 };
-
 const app = initializeApp(firebaseConfig);
-export const DATABASE = getDatabase(app);
+export const AUTH = initializeAuth(app, {
+  persistence: getReactNativePersistence(ReactNativeAsyncStorage),
+});
 export const STORAGE = getStorage(app);
-export const AUTH = getAuth(app);
+export const FIRESTORE = getFirestore(app);
