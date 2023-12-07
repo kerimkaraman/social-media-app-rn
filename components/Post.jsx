@@ -5,7 +5,7 @@ import { ref as ref_storage, getDownloadURL } from "firebase/storage";
 import { FIRESTORE, STORAGE } from "../firebaseConfig";
 import { collection, getDocs, query, where } from "firebase/firestore";
 
-export default function Post({ id, userId, text }) {
+export default function Post({ id, userId, text, likeCount, commentCount }) {
   const [isLiked, setIsLiked] = React.useState(false);
   const [postImg, setPostImg] = useState();
   const [userImg, setUserImg] = useState();
@@ -60,8 +60,12 @@ export default function Post({ id, userId, text }) {
       <View className="flex-row items-center justify-between px-4">
         <View className="flex-row items-center gap-x-4">
           <Image
-            style={{ objectFit: "cover" }}
-            className="w-[50px] h-[50px] rounded-full border border-custom-green"
+            style={{
+              objectFit: "cover",
+              borderRadius: 25,
+              borderWidth: 1,
+            }}
+            className="w-[50px] h-[50px] border border-custom-green"
             source={{ uri: userImg }}
           />
           <View className="flex-col">
@@ -92,6 +96,14 @@ export default function Post({ id, userId, text }) {
         </TouchableOpacity>
         <Pressable>
           <FontAwesome name="comment" size={24} color="black" />
+        </Pressable>
+      </View>
+      <View className="flex-row items-center px-4 gap-x-6">
+        <Pressable>
+          <Text>{likeCount} beğeni</Text>
+        </Pressable>
+        <Pressable>
+          <Text>{commentCount} yorum</Text>
         </Pressable>
       </View>
     </View>

@@ -67,7 +67,7 @@ export default function Profile() {
   ) : (
     <SafeAreaView className="bg-white" style={{ flex: 1 }}>
       <ScrollView className="flex-col gap-y-2">
-        <View className="items-center justify-center gap-y-5 mt-2">
+        <View className="items-center justify-center gap-y-5 mt-2 border-b border-custom-lightgrey pb-4">
           <Image
             style={{ width: 100, height: 100, borderRadius: 50 }}
             source={{ uri: userPfp }}
@@ -80,7 +80,14 @@ export default function Profile() {
         {posts != undefined
           ? posts.map((post) => {
               return (
-                <Post id={post.postId} userId={post.userId} text={post.text} />
+                <Post
+                  key={post.postId}
+                  id={post.postId}
+                  userId={post.userId}
+                  text={post.text}
+                  likeCount={post.likes.length}
+                  commentCount={post.comments.length}
+                />
               );
             })
           : null}

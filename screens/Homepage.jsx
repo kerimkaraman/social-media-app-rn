@@ -43,7 +43,13 @@ export default function Homepage() {
         <CreatePost userId={userId} />
         {posts.map((post) => {
           return (
-            <Post id={post.postId} userId={post.userId} text={post.text} />
+            <Post
+              id={post.postId}
+              likeCount={post.likes.length}
+              commentCount={post.comments.length}
+              userId={post.userId}
+              text={post.text}
+            />
           );
         })}
       </ScrollView>
