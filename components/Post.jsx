@@ -15,7 +15,11 @@ import {
   arrayRemove,
   getDoc,
 } from "firebase/firestore";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
+import {
+  updateCommentModalState,
+  updateCommentPostId,
+} from "../store/slices/commentModalSlice";
 
 export default function Post({ id, userId, text, likeCount, commentCount }) {
   const [isLiked, setIsLiked] = React.useState(false);
@@ -23,6 +27,7 @@ export default function Post({ id, userId, text, likeCount, commentCount }) {
   const [userImg, setUserImg] = useState();
   const [userDetails, setUserDetails] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const dispatch = useDispatch();
   const { email } = useSelector((state) => state.user);
 
   const getImages = async () => {
@@ -115,12 +120,20 @@ export default function Post({ id, userId, text, likeCount, commentCount }) {
       });
   };
 
+  const handleCommentModal = () => {
+    dispatch(updateCommentPostId(id));
+    dispatch(updateCommentModalState(true));
+  };
+
   useEffect(() => {
     getImages().then(setIsLoading(false));
   }, []);
 
   return isLoading ? null : (
-    <View key={id} className="bg-white flex-col gap-y-4 mt-2 py-4">
+    <View
+      key={id}
+      className="bg-white flex-col gap-y-4 border-b border-t border-custom-lightgrey pb-8 pt-4"
+    >
       <View className="flex-row items-center justify-between px-4">
         <View className="flex-row items-center gap-x-4">
           <Image
@@ -160,7 +173,7 @@ export default function Post({ id, userId, text, likeCount, commentCount }) {
             color={isLiked ? "blue" : "black"}
           />
         </TouchableOpacity>
-        <Pressable>
+        <Pressable onPress={handleCommentModal}>
           <FontAwesome name="comment" size={24} color="black" />
         </Pressable>
       </View>

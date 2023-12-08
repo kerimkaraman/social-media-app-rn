@@ -10,9 +10,9 @@ import AddImage from "../assets/svg/AddImage";
 import * as ImagePicker from "expo-image-picker";
 import Animated from "react-native-reanimated";
 import { useSharedValue, withTiming } from "react-native-reanimated";
-import { AUTH, FIRESTORE, STORAGE } from "../firebaseConfig";
+import { FIRESTORE, STORAGE } from "../firebaseConfig";
 import { v4 as uuidv4 } from "uuid";
-import { doc, setDoc, getDoc } from "firebase/firestore";
+import { doc, setDoc } from "firebase/firestore";
 import {
   ref as ref_storage,
   getDownloadURL,
@@ -89,7 +89,7 @@ export default function CreatePost({ userId }) {
   };
 
   return (
-    <View className="bg-white px-4 py-6 my-[2px]">
+    <View className="bg-white px-4 py-6 my-[2px] border-b-4 border-custom-lightgrey">
       <View className="flex-col gap-y-5">
         <View>
           <TextInput

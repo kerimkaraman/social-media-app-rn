@@ -12,6 +12,7 @@ import {
   where,
 } from "firebase/firestore";
 import { FIRESTORE } from "../firebaseConfig";
+import CommentModal from "./CommentModal";
 
 export default function Homepage() {
   const [posts, setPosts] = useState([]);
@@ -48,7 +49,7 @@ export default function Homepage() {
   ) : (
     <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
       <PageHeader />
-      <ScrollView className="bg-custom-lightgrey">
+      <ScrollView style={{ flex: 1 }} className="bg-custom-lightgrey">
         <CreatePost userId={userId} />
         {posts.map((post) => {
           return (
@@ -61,6 +62,7 @@ export default function Homepage() {
             />
           );
         })}
+        <CommentModal />
       </ScrollView>
     </SafeAreaView>
   );
