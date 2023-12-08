@@ -15,14 +15,8 @@ export default function Search() {
         <TextInput
           onChangeText={(text) => dispatch(updateSearchText(text))}
           placeholder="Aramak için yazınız."
-          className="w-[60%] bg-custom-lightgrey p-2 rounded-md"
+          className="w-[80%] bg-custom-lightgrey p-2 rounded-md"
         />
-        <Pressable
-          onPress={() => dispatch(updateSearchText(true))}
-          className="bg-custom-green py-2 px-4 rounded-md"
-        >
-          <Text className="font-medium text-white">Ara</Text>
-        </Pressable>
       </View>
       <Tab.Navigator
         screenOptions={{

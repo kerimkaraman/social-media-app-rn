@@ -4,7 +4,13 @@ import CreatePost from "../components/CreatePost";
 import PageHeader from "../components/PageHeader";
 import Post from "../components/Post";
 import { useSelector } from "react-redux";
-import { collection, getDocs, query, where } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  onSnapshot,
+  query,
+  where,
+} from "firebase/firestore";
 import { FIRESTORE } from "../firebaseConfig";
 
 export default function Homepage() {
@@ -15,24 +21,27 @@ export default function Homepage() {
 
   const getData = async () => {
     const db = FIRESTORE;
-    const querySnapshot = await getDocs(collection(db, "posts"));
-    const newPosts = querySnapshot.docs.map((doc) => {
-      return {
+    const postsCollection = collection(db, "posts");
+
+    const unsubscribe = onSnapshot(postsCollection, (querySnapshot) => {
+      const newPosts = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
-      };
+      }));
+      setPosts(newPosts);
     });
-    setPosts(newPosts);
     const usersRef = collection(db, "users");
     const q = query(usersRef, where("email", "==", email));
     const user = await getDocs(q);
     user.forEach((doc) => {
       setUserId(doc.data().id);
     });
+
+    unsubscribe();
   };
   useEffect(() => {
     getData().then(setIsLoading(false));
-  }, []);
+  }, [posts]);
 
   return isLoading ? (
     <Text>Hello</Text>

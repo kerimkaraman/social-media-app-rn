@@ -18,7 +18,6 @@ import {
   getDownloadURL,
   uploadBytes,
 } from "firebase/storage";
-import getCurrentDate from "../functions";
 
 export default function CreatePost({ userId }) {
   const [image, setImage] = React.useState(null);
@@ -63,31 +62,34 @@ export default function CreatePost({ userId }) {
       likes: [],
       comments: [],
     });
-    const blob = await new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest();
-      xhr.onload = function () {
-        resolve(xhr.response);
-      };
-      xhr.onerror = function (e) {
-        console.log(e);
-        reject(new TypeError("Network request failed"));
-      };
-      xhr.responseType = "blob";
-      xhr.open("GET", image, true);
-      xhr.send(null);
-    });
+    if (image) {
+      const blob = await new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.onload = function () {
+          resolve(xhr.response);
+        };
+        xhr.onerror = function (e) {
+          console.log(e);
+          reject(new TypeError("Network request failed"));
+        };
+        xhr.responseType = "blob";
+        xhr.open("GET", image, true);
+        xhr.send(null);
+      });
 
-    const fileRef = ref_storage(STORAGE, "posts/" + postId);
-    const result = await uploadBytes(fileRef, blob);
-    console.log("Successfully loaded !");
-    blob.close();
+      const fileRef = ref_storage(STORAGE, "posts/" + postId);
+      const result = await uploadBytes(fileRef, blob);
+      console.log("Successfully loaded !");
+      blob.close();
+
+      return await getDownloadURL(fileRef);
+    }
     setText("");
     setImage(null);
-    return await getDownloadURL(fileRef);
   };
 
   return (
-    <View className="bg-white px-4 py-6 my-4">
+    <View className="bg-white px-4 py-6 my-[2px]">
       <View className="flex-col gap-y-5">
         <View>
           <TextInput

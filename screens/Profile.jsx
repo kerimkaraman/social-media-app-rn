@@ -1,18 +1,17 @@
-import { View, Text, SafeAreaView, Image, ScrollView } from "react-native";
+import { View, Text, SafeAreaView, ScrollView } from "react-native";
 import React, { useEffect, useLayoutEffect, useState } from "react";
-import axios from "axios";
-import { onValue, ref } from "firebase/database";
-import { DATABASE, FIRESTORE, STORAGE } from "../firebaseConfig";
+import { Image } from "expo-image";
+import { FIRESTORE, STORAGE } from "../firebaseConfig";
 import Post from "../components/Post";
 import { getDownloadURL, ref as ref_storage } from "firebase/storage";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { useSelector } from "react-redux";
 
 export default function Profile() {
-  const { email } = useSelector((state) => state.user);
   const [user, setUser] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [posts, setPosts] = useState([]);
+  const { email } = useSelector((state) => state.user);
 
   const [userPfp, setUserPfp] = useState();
   let userId;
@@ -61,7 +60,7 @@ export default function Profile() {
       .then((res) => getPosts(res))
       .then((response) => fetchImage(response))
       .then(setIsLoading(false));
-  }, [email]);
+  }, []);
   return isLoading ? (
     <Text>deneme</Text>
   ) : (
@@ -69,6 +68,7 @@ export default function Profile() {
       <ScrollView className="flex-col gap-y-2">
         <View className="items-center justify-center gap-y-5 mt-2 border-b border-custom-lightgrey pb-4">
           <Image
+            placeholder="LCF?6Zn$1+R+%|V|RpR+~ab0D*nm"
             style={{ width: 100, height: 100, borderRadius: 50 }}
             source={{ uri: userPfp }}
           />

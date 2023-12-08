@@ -41,18 +41,25 @@ export default function SearchPeople() {
   }, [searchText]);
 
   return (
-    <ScrollView style={{ flex: 1 }}>
-      {searchText == ""
-        ? null
-        : filteredUsers.map((user) => {
-            return (
-              <PeopleSearchItem
-                id={user.id}
-                namesurname={user.namesurname}
-                email={user.email}
-              />
-            );
-          })}
+    <ScrollView style={{ flex: 1, backgroundColor: "white" }}>
+      {searchText == "" ? (
+        <View
+          className="bg-white flex-col mt-52 items-center justify-center"
+          style={{ flex: 1 }}
+        >
+          <Text>Henüz bir arama yapmadınız. Yukarıya metin giriniz.</Text>
+        </View>
+      ) : (
+        filteredUsers.map((user) => {
+          return (
+            <PeopleSearchItem
+              id={user.id}
+              namesurname={user.namesurname}
+              email={user.email}
+            />
+          );
+        })
+      )}
     </ScrollView>
   );
 }

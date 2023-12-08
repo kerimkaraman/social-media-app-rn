@@ -1,9 +1,21 @@
-import { View, Text, Image, Pressable, TouchableOpacity } from "react-native";
+import { View, Text, Pressable, TouchableOpacity } from "react-native";
+import { Image } from "expo-image";
 import React, { useEffect, useState } from "react";
-import { AntDesign, FontAwesome } from "@expo/vector-icons";
+import { AntDesign, FontAwesome, Fontisto } from "@expo/vector-icons";
 import { ref as ref_storage, getDownloadURL } from "firebase/storage";
 import { FIRESTORE, STORAGE } from "../firebaseConfig";
-import { collection, getDocs, query, where } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  query,
+  where,
+  doc,
+  updateDoc,
+  arrayUnion,
+  arrayRemove,
+  getDoc,
+} from "firebase/firestore";
+import { useSelector } from "react-redux";
 
 export default function Post({ id, userId, text, likeCount, commentCount }) {
   const [isLiked, setIsLiked] = React.useState(false);
@@ -11,10 +23,11 @@ export default function Post({ id, userId, text, likeCount, commentCount }) {
   const [userImg, setUserImg] = useState();
   const [userDetails, setUserDetails] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const { email } = useSelector((state) => state.user);
 
   const getImages = async () => {
     const storage = STORAGE;
-    getDownloadURL(ref_storage(storage, `posts/${id}`))
+    await getDownloadURL(ref_storage(storage, `posts/${id}`))
       .then((url) => {
         const xhr = new XMLHttpRequest();
         xhr.responseType = "blob";
@@ -28,7 +41,7 @@ export default function Post({ id, userId, text, likeCount, commentCount }) {
       .catch((error) => {
         console.log(error);
       });
-    getDownloadURL(ref_storage(storage, `pfps/${userId}`))
+    await getDownloadURL(ref_storage(storage, `pfps/${userId}`))
       .then((url) => {
         const xhr = new XMLHttpRequest();
         xhr.responseType = "blob";
@@ -49,6 +62,57 @@ export default function Post({ id, userId, text, likeCount, commentCount }) {
     user.forEach((doc) => {
       setUserDetails(doc.data());
     });
+
+    const postRef = doc(db, "posts", id);
+    await getDoc(postRef)
+      .then((docSnapshot) => {
+        if (docSnapshot.exists()) {
+          const likesArray = docSnapshot.data().likes;
+          const spesifikDeger = userId;
+          if (likesArray && likesArray.includes(spesifikDeger)) {
+            setIsLiked(true);
+          } else {
+            setIsLiked(false);
+          }
+        }
+      })
+      .catch((error) => {
+        console.log("Hata oluştu: ", error);
+      });
+  };
+
+  const handleLike = async () => {
+    const db = FIRESTORE;
+    let userId;
+    const userRef = collection(db, "users");
+    const q = query(userRef, where("email", "==", email));
+    const user = await getDocs(q);
+    user.forEach((doc) => {
+      userId = doc.data().id;
+    });
+
+    const postRef = doc(db, "posts", id);
+    await getDoc(postRef)
+      .then((docSnapshot) => {
+        if (docSnapshot.exists()) {
+          const likesArray = docSnapshot.data().likes;
+          const spesifikDeger = userId;
+          if (likesArray && likesArray.includes(spesifikDeger)) {
+            updateDoc(postRef, {
+              likes: arrayRemove(userId),
+            });
+            setIsLiked(false);
+          } else {
+            updateDoc(postRef, {
+              likes: arrayUnion(userId),
+            });
+            setIsLiked(true);
+          }
+        }
+      })
+      .catch((error) => {
+        console.log("Hata oluştu: ", error);
+      });
   };
 
   useEffect(() => {
@@ -65,6 +129,7 @@ export default function Post({ id, userId, text, likeCount, commentCount }) {
               borderRadius: 25,
               borderWidth: 1,
             }}
+            placeholder="LCF?6Zn$1+R+%|V|RpR+~ab0D*nm"
             className="w-[50px] h-[50px] border border-custom-green"
             source={{ uri: userImg }}
           />
@@ -80,6 +145,7 @@ export default function Post({ id, userId, text, likeCount, commentCount }) {
       <View className="flex-col gap-y-5">
         {postImg != null ? (
           <Image
+            placeholder="LCF?6Zn$1+R+%|V|RpR+~ab0D*nm"
             source={{ uri: postImg }}
             style={{ width: "100%", height: 200, objectFit: "cover" }}
           />
@@ -87,7 +153,7 @@ export default function Post({ id, userId, text, likeCount, commentCount }) {
         <Text className="px-4">{text}</Text>
       </View>
       <View className="px-4 flex-row gap-x-6">
-        <TouchableOpacity onPress={() => setIsLiked(!isLiked)}>
+        <TouchableOpacity onPress={handleLike}>
           <AntDesign
             name="like1"
             size={24}
@@ -100,10 +166,10 @@ export default function Post({ id, userId, text, likeCount, commentCount }) {
       </View>
       <View className="flex-row items-center px-4 gap-x-6">
         <Pressable>
-          <Text>{likeCount} beğeni</Text>
+          <Text className="text-xs font-semibold">{likeCount} beğeni</Text>
         </Pressable>
         <Pressable>
-          <Text>{commentCount} yorum</Text>
+          <Text className="text-xs font-semibold">{commentCount} yorum</Text>
         </Pressable>
       </View>
     </View>

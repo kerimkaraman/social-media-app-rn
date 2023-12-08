@@ -31,6 +31,7 @@ export default function SearchPosts() {
   useEffect(() => {
     handleSearch().then(isSearchReady(true));
   }, []);
+
   useEffect(() => {
     if (searchReady) {
       filterPosts().then(console.log(filteredPosts));
@@ -38,21 +39,32 @@ export default function SearchPosts() {
   }, [searchText]);
 
   return (
-    <ScrollView>
+    <ScrollView
+      style={{
+        flex: 1,
+        backgroundColor: "white",
+      }}
+    >
       {searchText != "" ? (
-        filteredPosts.map((post) => {
+        filteredPosts.map((pp) => {
           return (
             <Post
-              id={post.postId}
-              userId={post.userId}
-              likeCount={post.likes.length}
-              commentCount={post.comments.length}
-              text={post.text}
+              key={pp.postId}
+              id={pp.postId}
+              userId={pp.userId}
+              likeCount={pp.likes.length}
+              commentCount={pp.comments.length}
+              text={pp.text}
             />
           );
         })
       ) : (
-        <Text>Böyle bir gönderi yok !</Text>
+        <View
+          className="bg-white flex-col mt-52 items-center justify-center"
+          style={{ flex: 1 }}
+        >
+          <Text>Henüz bir arama yapmadınız. Yukarıya metin giriniz.</Text>
+        </View>
       )}
     </ScrollView>
   );
