@@ -89,7 +89,7 @@ export default function CreatePost({ userId }) {
   };
 
   return (
-    <View className="bg-white px-4 py-6 my-[2px] border-b-4 border-custom-lightgrey">
+    <View className="bg-white px-4 py-6 mb-[16px] border-b-4 border-custom-lightgrey">
       <View className="flex-col gap-y-5">
         <View>
           <TextInput

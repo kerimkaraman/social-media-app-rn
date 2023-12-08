@@ -6,13 +6,14 @@ import {
   TextInput,
   Pressable,
   KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import React, { useState } from "react";
 import { LinearGradient } from "expo-linear-gradient";
 import { useDispatch, useSelector } from "react-redux";
 import { AUTH, FIRESTORE, STORAGE } from "../firebaseConfig";
 import * as ImagePicker from "expo-image-picker";
-import { collection, addDoc, doc, setDoc } from "firebase/firestore";
+import { doc, setDoc } from "firebase/firestore";
 import {
   ref as ref_storage,
   getDownloadURL,
@@ -34,6 +35,8 @@ export default function SignUp({ navigation }) {
   };
   const { namesurname, email, password } = useSelector((state) => state.user);
   const [image, setImage] = useState(null);
+  const [warningTextVisibility, setWarningTextVisibility] = useState(false);
+
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
@@ -48,6 +51,7 @@ export default function SignUp({ navigation }) {
   };
 
   const createUser = async () => {
+    setWarningTextVisibility(false);
     const userId = uuidv4();
     const db = FIRESTORE;
     await setDoc(doc(db, "users", userId), {
@@ -89,8 +93,11 @@ export default function SignUp({ navigation }) {
     return await getDownloadURL(fileRef);
   };
   return (
-    <View style={styles.container}>
-      <KeyboardAvoidingView>
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS == "ios" ? "padding" : "height"}
+    >
+      <View style={styles.container}>
         <LinearGradient style={styles.linear} colors={["#85FFBD", "#FFFB7D"]}>
           <Image
             style={styles.image}
@@ -98,52 +105,58 @@ export default function SignUp({ navigation }) {
             source={require("../assets/images/logo.png")}
           />
         </LinearGradient>
-      </KeyboardAvoidingView>
-      <Text className="text-4xl font-bold text-center text-custom-darkblue">
-        Kaydol
-      </Text>
-      <View className="w-[90%] mx-auto mt-10 gap-y-5">
-        <TextInput
-          onChangeText={(val) => {
-            dispatch(updateNameSurname(val));
-          }}
-          className="bg-custom-lightgrey p-4 rounded-xl"
-          placeholder="İsim Soyisim"
-        />
-        <View className="bg-custom-lightgrey p-4 rounded-xl flex-row justify-between items-center">
-          <Text className="text-[#C6C6CD]" onPress={pickImage}>
-            Profil resmi seçiniz...
-          </Text>
-        </View>
-        <TextInput
-          onChangeText={(val) => {
-            dispatch(updateEmail(val));
-          }}
-          className="bg-custom-lightgrey p-4 rounded-xl"
-          autoCapitalize="none"
-          placeholder="E-Mail"
-        />
-        <TextInput
-          onChangeText={(val) => {
-            dispatch(updatePassword(val));
-          }}
-          className="bg-custom-lightgrey p-4 rounded-xl"
-          secureTextEntry={true}
-          placeholder="Şifre"
-        />
-        <Pressable className="bg-custom-green py-2" onPress={createUser}>
-          <Text className="text-center text-xl text-white">Kaydol</Text>
-        </Pressable>
-        <View>
-          <Text className="text-center">
-            Hesabınız var mı?{" "}
-            <Text onPress={handleSwitch} className="text-blue-500">
-              Giriş Yapın
+        <Text className="text-4xl font-bold text-center my-4 text-custom-darkblue">
+          Kaydol
+        </Text>
+        <View className="w-[90%] mx-auto mt-10 gap-y-5">
+          <TextInput
+            onChangeText={(val) => {
+              dispatch(updateNameSurname(val));
+            }}
+            className="bg-custom-lightgrey p-4 rounded-xl"
+            placeholder="İsim Soyisim"
+          />
+          <View className="bg-custom-lightgrey p-4 rounded-xl flex-row justify-between items-center">
+            <Text className="text-[#C6C6CD]" onPress={pickImage}>
+              Profil resmi seçiniz...
             </Text>
-          </Text>
+          </View>
+          <TextInput
+            onChangeText={(val) => {
+              dispatch(updateEmail(val));
+            }}
+            className="bg-custom-lightgrey p-4 rounded-xl"
+            autoCapitalize="none"
+            placeholder="E-Mail"
+          />
+          <TextInput
+            onChangeText={(val) => {
+              dispatch(updatePassword(val));
+            }}
+            className="bg-custom-lightgrey p-4 rounded-xl"
+            secureTextEntry={true}
+            placeholder="Şifre"
+          />
+          <Pressable className="bg-custom-green py-2" onPress={createUser}>
+            <Text className="text-center text-xl text-white">Kaydol</Text>
+          </Pressable>
+          <View>
+            <Text className="text-center">
+              Hesabınız var mı?{" "}
+              <Text onPress={handleSwitch} className="text-blue-500">
+                Giriş Yapın
+              </Text>
+            </Text>
+          </View>
+        </View>
+        <View
+          style={{ display: warningTextVisibility ? "block" : "none" }}
+          className="items-center"
+        >
+          <Text>Hesap Oluşturuluyor. Lütfen Bekleyiniz.</Text>
         </View>
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 

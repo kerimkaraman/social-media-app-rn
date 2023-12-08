@@ -8,6 +8,7 @@ import {
   Pressable,
   KeyboardAvoidingView,
   Alert,
+  Platform,
 } from "react-native";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useDispatch, useSelector } from "react-redux";
@@ -43,8 +44,11 @@ export default function SignIn({ navigation }) {
   };
 
   return (
-    <View className="gap-y-5">
-      <KeyboardAvoidingView>
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS == "ios" ? "padding" : "height"}
+    >
+      <View className="gap-y-5" style={{ flex: 1 }}>
         <LinearGradient style={styles.linear} colors={["#85FFBD", "#FFFB7D"]}>
           <Image
             style={styles.image}
@@ -52,37 +56,38 @@ export default function SignIn({ navigation }) {
             source={require("../assets/images/logo.png")}
           />
         </LinearGradient>
-      </KeyboardAvoidingView>
-      <View className="mt-10">
-        <Text className="text-4xl font-bold text-center mt-4 text-custom-darkblue">
-          Giriş Yap
-        </Text>
-        <View className="gap-y-7 w-[90%] mx-auto pt-5">
-          <TextInput
-            onChangeText={(val) => dispatch(updateEmail(val))}
-            autoCapitalize="none"
-            placeholder="Email"
-            className="bg-custom-lightgrey p-4 rounded-xl"
-          />
-          <TextInput
-            placeholder="Password"
-            onChangeText={(val) => dispatch(updatePassword(val))}
-            className="bg-custom-lightgrey p-4 rounded-xl"
-          />
-          <Pressable className="bg-custom-green py-2" onPress={signIn}>
-            <Text className="text-center text-xl text-white">Giriş Yap</Text>
-          </Pressable>
+
+        <View className="mt-10">
+          <Text className="text-4xl font-bold text-center mt-4 text-custom-darkblue">
+            Giriş Yap
+          </Text>
+          <View className="gap-y-7 w-[90%] mx-auto pt-5">
+            <TextInput
+              onChangeText={(val) => dispatch(updateEmail(val))}
+              autoCapitalize="none"
+              placeholder="Email"
+              className="bg-custom-lightgrey p-4 rounded-xl"
+            />
+            <TextInput
+              placeholder="Password"
+              onChangeText={(val) => dispatch(updatePassword(val))}
+              className="bg-custom-lightgrey p-4 rounded-xl"
+            />
+            <Pressable className="bg-custom-green py-2" onPress={signIn}>
+              <Text className="text-center text-xl text-white">Giriş Yap</Text>
+            </Pressable>
+          </View>
+        </View>
+        <View>
+          <Text className="text-center">
+            Hesabınız yok mu?{" "}
+            <Text onPress={handleSwitch} className="text-blue-500">
+              Kaydol
+            </Text>
+          </Text>
         </View>
       </View>
-      <View>
-        <Text className="text-center">
-          Hesabınız yok mu?{" "}
-          <Text onPress={handleSwitch} className="text-blue-500">
-            Kaydol
-          </Text>
-        </Text>
-      </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 

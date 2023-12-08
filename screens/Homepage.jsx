@@ -1,4 +1,10 @@
-import { FlatList, SafeAreaView, ScrollView, Text } from "react-native";
+import {
+  FlatList,
+  Platform,
+  SafeAreaView,
+  ScrollView,
+  Text,
+} from "react-native";
 import React, { useEffect, useState } from "react";
 import CreatePost from "../components/CreatePost";
 import PageHeader from "../components/PageHeader";
@@ -47,7 +53,13 @@ export default function Homepage() {
   return isLoading ? (
     <Text>Hello</Text>
   ) : (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
+    <SafeAreaView
+      style={{
+        flex: 1,
+        backgroundColor: "white",
+        paddingTop: Platform.OS == "android" ? 50 : 0,
+      }}
+    >
       <PageHeader />
       <ScrollView style={{ flex: 1 }} className="bg-custom-lightgrey">
         <CreatePost userId={userId} />

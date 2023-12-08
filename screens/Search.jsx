@@ -1,4 +1,11 @@
-import { Pressable, SafeAreaView, Text, TextInput, View } from "react-native";
+import {
+  Platform,
+  Pressable,
+  SafeAreaView,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 import React from "react";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import SearchPeople from "./SearchPeople";
@@ -10,7 +17,10 @@ export default function Search() {
   const Tab = createMaterialTopTabNavigator();
   const dispatch = useDispatch();
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView
+      style={{ paddingTop: Platform.OS == "android" ? 50 : 0 }}
+      className="flex-1 bg-white"
+    >
       <View className="flex-row mt-2 items-center px-2 mb-16 justify-center gap-x-4">
         <TextInput
           onChangeText={(text) => dispatch(updateSearchText(text))}

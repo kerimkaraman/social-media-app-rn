@@ -1,4 +1,4 @@
-import { View, Text, SafeAreaView, ScrollView } from "react-native";
+import { View, Text, SafeAreaView, ScrollView, Platform } from "react-native";
 import React, { useEffect, useLayoutEffect, useState } from "react";
 import { Image } from "expo-image";
 import { FIRESTORE, STORAGE } from "../firebaseConfig";
@@ -64,7 +64,10 @@ export default function Profile() {
   return isLoading ? (
     <Text>deneme</Text>
   ) : (
-    <SafeAreaView className="bg-white" style={{ flex: 1 }}>
+    <SafeAreaView
+      className="bg-white"
+      style={{ flex: 1, paddingTop: Platform.OS == "android" ? 50 : 0 }}
+    >
       <ScrollView className="flex-col gap-y-2">
         <View className="items-center justify-center gap-y-5 mt-2 border-b border-custom-lightgrey pb-4">
           <Image
@@ -77,20 +80,24 @@ export default function Profile() {
             <Text className="text-xs text-custom-lightgrey">{user.email}</Text>
           </View>
         </View>
-        {posts != undefined
-          ? posts.map((post) => {
-              return (
-                <Post
-                  key={post.postId}
-                  id={post.postId}
-                  userId={post.userId}
-                  text={post.text}
-                  likeCount={post.likes.length}
-                  commentCount={post.comments.length}
-                />
-              );
-            })
-          : null}
+        {posts != undefined ? (
+          posts.map((post) => {
+            return (
+              <Post
+                key={post.postId}
+                id={post.postId}
+                userId={post.userId}
+                text={post.text}
+                likeCount={post.likes.length}
+                commentCount={post.comments.length}
+              />
+            );
+          })
+        ) : (
+          <View>
+            <Text>Hiç gönderi yok !</Text>
+          </View>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
